@@ -21,6 +21,7 @@ import { useFleetSimulation } from './hooks/useFleetSimulation';
 import { ScheduledJobsView, ScheduledJobItem } from './components/ScheduledJobsView';
 import { QuotesView } from './components/QuotesView';
 import { InvoicesView } from './components/InvoicesView';
+import { LegalPagesView, LegalPageType } from './components/LegalPagesView';
 import { JobberQuote, JobberInvoice } from './services/jobberSyncModules';
 import { 
   Truck, 
@@ -49,7 +50,10 @@ import {
   Calendar,
   FileCheck,
   Receipt,
-  Map as MapIcon
+  Map as MapIcon,
+  HelpCircle,
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
 
 export function App() {
@@ -70,8 +74,9 @@ export function App() {
   const [isPublicBookingModalOpen, setIsPublicBookingModalOpen] = useState<boolean>(false);
   const [isQuoModalOpen, setIsQuoModalOpen] = useState<boolean>(false);
 
-  // Dedicated Top Bar Navigation Tabs: 'MAP' | 'SCHEDULED_JOBS' | 'QUOTES' | 'INVOICES'
-  const [activeTopView, setActiveTopView] = useState<'MAP' | 'SCHEDULED_JOBS' | 'QUOTES' | 'INVOICES'>('MAP');
+  // Dedicated Top Bar Navigation Tabs: 'MAP' | 'SCHEDULED_JOBS' | 'QUOTES' | 'INVOICES' | 'LEGAL'
+  const [activeTopView, setActiveTopView] = useState<'MAP' | 'SCHEDULED_JOBS' | 'QUOTES' | 'INVOICES' | 'LEGAL'>('MAP');
+  const [activeLegalTab, setActiveLegalTab] = useState<LegalPageType>('SUPPORT');
   const [scheduledJobsList, setScheduledJobsList] = useState<ScheduledJobItem[]>([]);
   const [quotesList, setQuotesList] = useState<JobberQuote[]>([]);
   const [invoicesList, setInvoicesList] = useState<JobberInvoice[]>([]);
@@ -647,6 +652,23 @@ export function App() {
                 <Receipt className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Invoices</span>
               </button>
+
+              <button
+                id="nav-tab-legal"
+                onClick={() => {
+                  setActiveLegalTab('SUPPORT');
+                  setActiveTopView('LEGAL');
+                }}
+                className={`min-h-[34px] px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTopView === 'LEGAL'
+                    ? 'bg-white text-purple-800 shadow-2xs border border-slate-200'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Support desk, Terms & Conditions, and Privacy Policy (/support, /T&C, /privacy-policy)"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-purple-600" />
+                <span>Support &amp; Policies</span>
+              </button>
             </div>
 
             {/* Right Header Actions & Controls */}
@@ -876,6 +898,11 @@ export function App() {
                 });
             }}
           />
+        ) : activeTopView === 'LEGAL' ? (
+          <LegalPagesView
+            initialTab={activeLegalTab}
+            onBackToDispatch={() => setActiveTopView('MAP')}
+          />
         ) : (
           /* Main Dashboard: Dedicated Full-Bleed Map Backdrop with Collapsible Layered Panes */
           <main id="main-split-dashboard" className="flex-1 relative overflow-hidden bg-slate-50 flex flex-col md:flex-row">
@@ -1089,8 +1116,46 @@ export function App() {
           >
             <div className="flex items-center gap-4">
               <span>Fleet Health: <span className="text-emerald-400 font-bold">Optimal</span></span>
-              <span>Cleaners: <span className="text-slate-200 font-mono">15 Active Cleaners (Decentralized Hubs)</span></span>
-              <span className="hidden md:inline">Jobber Sync: <span className="text-emerald-300 font-semibold">Live GraphQL (developer.getjobber.com)</span></span>
+              <span>Cleaners: <span className="text-slate-200 font-mono">15 Active Cleaners</span></span>
+              <a
+                href="https://tidyupsbooking.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden lg:inline text-blue-400 hover:text-blue-300 font-mono font-semibold"
+              >
+                tidyupsbooking.com
+              </a>
+              <div className="hidden sm:flex items-center gap-2 border-l border-slate-700 pl-3">
+                <button
+                  onClick={() => {
+                    setActiveLegalTab('SUPPORT');
+                    setActiveTopView('LEGAL');
+                  }}
+                  className="hover:text-slate-200 cursor-pointer"
+                >
+                  /support
+                </button>
+                <span>•</span>
+                <button
+                  onClick={() => {
+                    setActiveLegalTab('TERMS');
+                    setActiveTopView('LEGAL');
+                  }}
+                  className="hover:text-slate-200 cursor-pointer"
+                >
+                  /T&amp;C
+                </button>
+                <span>•</span>
+                <button
+                  onClick={() => {
+                    setActiveLegalTab('PRIVACY');
+                    setActiveTopView('LEGAL');
+                  }}
+                  className="hover:text-slate-200 cursor-pointer"
+                >
+                  /privacy-policy
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
